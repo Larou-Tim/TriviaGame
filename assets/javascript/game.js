@@ -54,7 +54,7 @@ function randomNumber (min, max) {
 }
 
 var questions = [
-    { queryURL: "http://pokeapi.co/api/v2/pokemon/",
+    { queryURL: "https://pokeapi.co/api/v2/pokemon/",
 
       getQuestion: function() {
         $.ajax({
@@ -92,7 +92,7 @@ var questions = [
     {
       getQuestion:function() {
          $.ajax({
-          url: ("http://pokeapi.co/api/v2/machine/" + randomNumber(1,500)),
+          url: ("https://pokeapi.co/api/v2/machine/" + randomNumber(1,500)),
           method: "GET"
         }).done(function(response) { 
 
@@ -129,7 +129,7 @@ var questions = [
     {
       getQuestion:function() {
          $.ajax({
-          url: ("http://pokeapi.co/api/v2/move/" + randomNumber(1,500)),
+          url: ("https://pokeapi.co/api/v2/move/" + randomNumber(1,500)),
           method: "GET"
         }).done(function(response) { 
 
@@ -168,7 +168,7 @@ var questions = [
       //could update for pokemon with multiple types maybe add some multi types to type list, and just add it in th epull function
       getQuestion: function () {   
         $.ajax({
-          url: ("http://pokeapi.co/api/v2/pokemon/" + randomNumber(1,151)),
+          url: ("https://pokeapi.co/api/v2/pokemon/" + randomNumber(1,151)),
           method: "GET"
         }).done(function(response) { 
           var curPokemon = response.name.toUpperCase();
