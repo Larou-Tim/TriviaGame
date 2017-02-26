@@ -13,30 +13,43 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
-
-
 </head>
 <body>
-<div class="container">
+<<!-- div class="container" id="timer-box">
 	<div class="jumbotron">
-		<div class="text-center" id="display">30</div>
-
+		<div class="text-center" id="display">10</div>
 	</div>
-</div>
+</div> -->
 
-<div class="container">
+<div class="container" id="main-box">
 	<div class="jumbotron">
 		<div class="row text-center">
-			<div id='question-01'> </div>
+			<div class="text-center" id="display"></div>
 		</div>
-		<div class="row">
-				<div id="question-1-answers"></div>
+		<br><br>
+		<div class="row text-center">
+				<div id='picture-spot'> </div>
 		</div>
-			
+		<div class="row text-center">
+				<div id='question-spot'> </div>
+		</div>
+		<br><br>
+			<div class="row text-center">
+					<div id="question-answers">
+						<button id="start" class="btn btn-primary">Start</button>
+					</div>
+			</div>
+				
 	</div>
 </div>
 
-<button id="start">Start</button>
+<!-- <button id="start">Start</button> -->
+<!-- 
+  	<div id="buttons">
+        <button id="start">Start</button>
+	</div> -->
+
+<!-- <button id="stop">Pause</button> -->
 
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js">    </script>
     <script type="text/javascript" src="./assets/javascript/game.js"></script>

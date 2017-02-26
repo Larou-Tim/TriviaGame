@@ -1,5 +1,4 @@
- 
-var intervalId;
+
 var correctAnswers = 0;
 var wrongAnswers = 0;
 var possibleChoices = [];
@@ -16,60 +15,52 @@ var allTMMoves = ["mega punch", "razor wind" , "swords dance", "whirlwind", "meg
                    "psywave", "explosion", "rock slide", "tri attack", "subsitute" ];
 
 
-timer = {
 
-  timeLeft: 30,
+var intervalId;
+var nextQuestion = $("<button>");
+nextQuestion.attr("id","start");
+nextQuestion.attr("class", "btn btn-primary");
+nextQuestion.text("Next Question");
 
+var timer = {
+
+  time: 10,
+
+  reset: function() {
+
+    timer.time = 10;
+
+    $("#display").html("10");
+  },
   start: function() {
 
-    // DONE: Use setInterval to start the count here.
     intervalId = setInterval(timer.count, 1000);
   },
-
   stop: function() {
-
-    // DONE: Use clearInterval to stop the count here.
     clearInterval(intervalId);
   },
-
-   count: function() {
-
-    // DONE: increment time by 1, remember we cant use "this" here.
-    timer.timeLeft -- ;
-
-    if (timer.timeLeft == 0) {
-      $("#display").html(timer.timeLeft);
-      alert("Times up");
-      timer.stop();
+  count: function() {
+    timer.time--;
+    if (timer.time == 0) {
+      wrongChoice('Times up');
     }
-    else {
-       $("#display").html(timer.timeLeft);
-    }
+    $("#display").html(timer.time);
   },
-
-    reset: function() {
-
-    timer.timeLeft = 30;
-
-    $("#display").html(timer.timeLeft);
-
-  },
-}
+};
 
 
 function randomNumber (min, max) {
   return Math.floor(Math.random()*(max - min)) + min
 }
 
-  var questions = [
+var questions = [
     { queryURL: "http://pokeapi.co/api/v2/pokemon/",
 
       getQuestion: function() {
         $.ajax({
           url: (this.queryURL + randomNumber(1,151)),
           method: "GET"
-        }).done(function(response) { // i should move this to seperate function
-          console.log(questions[0].answers);
+        }).done(function(response) { 
           var pokemonName = response.name;
           var quesText = "How much does " + pokemonName.toUpperCase() + " weigh?";
           var answers = mathAnswers;
@@ -108,13 +99,13 @@ function randomNumber (min, max) {
 
           var curGame = response.version_group.name.toUpperCase();
           var tmMoves = allTMMoves;
-          var curTM = response.move.name.toUpperCase();
+          var curTM = response.move.name;
           var curMachine = response.item.name.toUpperCase();
-
           var question = "In the game " + curGame + " what move does " + curMachine + " train?"
           var index = tmMoves.indexOf(curTM);
-          possibleChoices.push(curTM);
-          questionAnswer = curTM;
+
+          possibleChoices.push(curTM.toUpperCase());
+          questionAnswer = curTM.toUpperCase();
 
           if (index > -1) {
             tmMoves.splice (index,1);
@@ -129,7 +120,6 @@ function randomNumber (min, max) {
           randomChoice = randomNumber(0,tmMoves.length-1);
           possibleChoices.push(tmMoves[randomChoice].toUpperCase());
           tmMoves.splice (randomChoice,1);
-
           questionHandler(question);
 
         });
@@ -175,7 +165,7 @@ function randomNumber (min, max) {
     },
 
     {
-      //update for pokemon with multiple types maybe add some multi types to type list, and just add it in th epull function
+      //could update for pokemon with multiple types maybe add some multi types to type list, and just add it in th epull function
       getQuestion: function () {   
         $.ajax({
           url: ("http://pokeapi.co/api/v2/pokemon/" + randomNumber(1,151)),
@@ -183,9 +173,10 @@ function randomNumber (min, max) {
         }).done(function(response) { 
           var curPokemon = response.name.toUpperCase();
 
-          var question = "What type is " + curPokemon + " ?"
+          var question = "What type is " + curPokemon + "?"
 
           var types = pokemonTypes;
+          console.log(pokemonTypes);
 
           var curPokemonType = response.types[0].type.name;
 
@@ -198,13 +189,13 @@ function randomNumber (min, max) {
             types.splice (index,1);
           }
 
-          var randomChoice = randomNumber(0,types.length-1);
+          var randomChoice = randomNumber(0,types.length);
           possibleChoices.push(types[randomChoice]);
           types.splice (randomChoice,1);
-          randomChoice = randomNumber(0,types.length-1);
+          randomChoice = randomNumber(0,types.length);
           possibleChoices.push(types[randomChoice]);
           types.splice (randomChoice,1);
-          randomChoice = randomNumber(0,types.length-1);
+          randomChoice = randomNumber(0,types.length);
           possibleChoices.push(types[randomChoice]);
           types.splice (randomChoice,1);
 
@@ -215,73 +206,151 @@ function randomNumber (min, max) {
     }
   ]
 
-randomQuestion = randomNumber(0,questions.length-1);
-  // questions[randomQuestion].getQuestion();
-  questions[2].getQuestion();
+
+
+function questionSelect () {
+    $("#question-answers").empty();
+    randomQuestion = randomNumber(0,questions.length);
+    
+    questions[randomQuestion].getQuestion();
+
+  }
+
+function correctChoice(choice) {
+  $("#question-spot").empty();
+  $("#question-answers").empty();
+
+  $("#question-spot").html("That's correct!");
+  correctAnswers ++;
+  timer.stop();
+
+  if ((correctAnswers + wrongAnswers) == 10) {
+    gameOver();
+  }
+  else {
+    $("#question-answers").append(nextQuestion);
+  }
+}
+
+function wrongChoice(choice) {
+  var wrongChoice = choice;
+  $("#question-spot").empty();
+  $("#question-answers").empty();
+
+  if (choice != 'Times up') {
+    $("#question-spot").html(wrongChoice + " is incorrect. The correct answer was " + questionAnswer);
+  }
+  else {
+    $("#question-spot").html(wrongChoice + ". The correct answer was " + questionAnswer);
+  }
+  wrongAnswers ++;
+  timer.stop();
+
+  if ((correctAnswers + wrongAnswers) == 10) {
+    gameOver();
+  }
+  else {
+    $("#question-answers").append(nextQuestion);
+  }
+
+}
+
+$("body").on("click", "#start", function(){
+  $("#question-spot").text("Please wait....");
+  questionSelect();
+
+
+});
 
 
   $("body").on("click", ".answer-choice", function(){
 
       var selectedAnswer = $(this).attr('val');
-   
+      timer.stop();
 
       if (selectedAnswer == questionAnswer) {
-        alert("Winner Winner Chicken Dinner");
+        correctChoice(selectedAnswer);
+      }
+
+      else {
+        wrongChoice(selectedAnswer);
       }
       
   });
 
+function gameOver() {
+  var newGame = nextQuestion;
+  newGame.text("New Game");
+
+  $("#question-spot").empty();
+  $("#question-answers").empty();
+  $("#question-spot").text("You have answered " + correctAnswers + " questions correctly <br /> and " + wrongAnswers + " questions incorrectly.");
+
+  correctAnswers = 0;
+  wrongAnswers = 0;
+  $("#question-answers").append(newGame);
+
+}
 
 function questionHandler (questionText) {
+  console.log("x");
   var answer1 = $("<button>");
-      var answer2 = $("<button>");
-      var answer3 = $("<button>");
-      var answer4 = $("<button>");
-      answer1.attr("id","choice-1");
-      answer1.attr("class","answer-choice");
-      randomChoice = randomNumber(0, (possibleChoices.length -1))
-      answer1.html(possibleChoices[randomChoice]);
-      answer1.attr("val",possibleChoices[randomChoice]);
-      possibleChoices.splice(randomChoice,1);
+  var answer2 = $("<button>");
+  var answer3 = $("<button>");
+  var answer4 = $("<button>");
+  
+  answer1.attr("class","btn btn-info answer-choice");
+
+  answer2.attr("class","btn btn-info answer-choice");
+
+  answer3.attr("class","btn btn-info answer-choice");
+
+  answer4.attr("class","btn btn-info answer-choice");
+
+  answer1.attr("id","choice-1");
+  randomChoice = randomNumber(0, (possibleChoices.length -1))
+  answer1.html(possibleChoices[randomChoice]);
+  answer1.attr("val",possibleChoices[randomChoice]);
+  possibleChoices.splice(randomChoice,1);
 
 
-      answer2.attr("id","choice-2");
-      answer2.attr("class","answer-choice");
+  answer2.attr("id","choice-2");
    
-     
-      randomChoice = randomNumber(0,possibleChoices.length-1)
-      answer2.html(possibleChoices[randomChoice]);
-      answer2.attr("val",possibleChoices[randomChoice]);
-      possibleChoices.splice(randomChoice,1);
+  randomChoice = randomNumber(0,possibleChoices.length-1)
+  answer2.html(possibleChoices[randomChoice]);
+  answer2.attr("val",possibleChoices[randomChoice]);
+  possibleChoices.splice(randomChoice,1);
 
 
-      answer3.attr("id","choice-3");
-      answer3.attr("class","answer-choice");
-      randomChoice = randomNumber(0,possibleChoices.length-1)
-      answer3.html(possibleChoices[randomChoice]);
-      answer3.attr("val",possibleChoices[randomChoice]);
-      possibleChoices.splice(randomChoice,1);
+  answer3.attr("id","choice-3");
 
-
-
-      answer4.attr("id","choice-4");
-      answer4.attr("class","answer-choice");
-      randomChoice = 0;
-      answer4.html(possibleChoices[randomChoice]);
-      answer4.attr("val",possibleChoices[randomChoice]);
-      possibleChoices.splice(randomChoice,1);
+  randomChoice = randomNumber(0,possibleChoices.length-1)
+  answer3.html(possibleChoices[randomChoice]);
+  answer3.attr("val",possibleChoices[randomChoice]);
+  possibleChoices.splice(randomChoice,1);
 
 
 
-      $("#question-01").append(questionText);
+  answer4.attr("id","choice-4");
+  
+  randomChoice = 0;
+  answer4.html(possibleChoices[randomChoice]);
+  answer4.attr("val",possibleChoices[randomChoice]);
+  possibleChoices.splice(randomChoice,1);
 
-      $("#question-1-answers").append(answer1);
-      $("#question-1-answers").append(answer2);
-      $("#question-1-answers").append(answer3);
-      $("#question-1-answers").append(answer4);
 
-      possibleChoices = [];
-      timer.start();
+  $("#question-spot").empty();
+  $("#question-answers").empty();
+  $("#question-spot").text(questionText);
+
+  $("#question-answers").append(answer1);
+  $("#question-answers").append(answer2);
+  $("#question-answers").append(answer3);
+  $("#question-answers").append(answer4);
+
+    possibleChoices = [];
+    timer.reset();
+    timer.start();
 }
 
 
