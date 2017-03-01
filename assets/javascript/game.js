@@ -2,7 +2,7 @@
 var correctAnswers = 0;
 var wrongAnswers = 0;
 var possibleChoices = [];
-var pokemonTypes = ['bug', 'dragon', 'ice', 'fighting', 'fire', 'flying', 'grass', 'ghost','ground','electric','normal','poison','psychic','rock','water', 'dark', 'steel', 'fairy'];
+const pokemonTypes = ['bug', 'dragon', 'ice', 'fighting', 'fire', 'flying', 'grass', 'ghost','ground','electric','normal','poison','psychic','rock','water', 'dark', 'steel', 'fairy'];
 var questionAnswer;
 var mathAnswers = [.5,.6,.7,.8,.9,1.1,1.2,1.3,1.4,1.5];
 var allTMMoves = ["mega punch", "razor wind" , "swords dance", "whirlwind", "mega kick", 
@@ -66,22 +66,10 @@ var questions = [
           var answers = mathAnswers;
           var randomChoice;
           
-          possibleChoices.push(response.weight);  
           questionAnswer = response.weight;
 
-          randomChoice = randomNumber(0,(answers.length -1))
-          possibleChoices.push(Math.ceil(response.weight * answers[randomChoice]));
-          answers.splice(randomChoice,1); 
-          randomChoice = randomNumber(0, answers.length -1)
-
-          possibleChoices.push(Math.ceil(response.weight * answers[randomChoice]));
-          answers.splice(randomChoice,1); 
-          randomChoice = randomNumber(0,answers.length -1)
-
-          possibleChoices.push(Math.ceil(response.weight * answers[randomChoice]));
-         
-
-          questionHandler(quesText);
+       
+          questionHandler(quesText,mathAnswers,questionAnswer);
 
         });
 
@@ -98,29 +86,13 @@ var questions = [
 
 
           var curGame = response.version_group.name.toUpperCase();
-          var tmMoves = allTMMoves;
-          var curTM = response.move.name;
+          // var tmMoves = allTMMoves;       var curTM = response.move.name;
           var curMachine = response.item.name.toUpperCase();
           var question = "In the game " + curGame + " what move does " + curMachine + " train?"
-          var index = tmMoves.indexOf(curTM);
-
-          possibleChoices.push(curTM.toUpperCase());
+          var curTM = response.move.name;
           questionAnswer = curTM.toUpperCase();
 
-          if (index > -1) {
-            tmMoves.splice (index,1);
-          }
-
-          var randomChoice = randomNumber(0,tmMoves.length-1);
-          possibleChoices.push(tmMoves[randomChoice].toUpperCase());
-          tmMoves.splice (randomChoice,1);
-          randomChoice = randomNumber(0,tmMoves.length-1);
-          possibleChoices.push(tmMoves[randomChoice].toUpperCase());
-          tmMoves.splice (randomChoice,1);
-          randomChoice = randomNumber(0,tmMoves.length-1);
-          possibleChoices.push(tmMoves[randomChoice].toUpperCase());
-          tmMoves.splice (randomChoice,1);
-          questionHandler(question);
+          questionHandler(question,allTMMoves,questionAnswer);
 
         });
       }
@@ -136,29 +108,11 @@ var questions = [
 
           var curType = response.type.name.toUpperCase();
           var moveName = response.name.toUpperCase();
-          var moveTypes = pokemonTypes;
-
+    
           var question = "What type is the move " + moveName + " ?"
-          var index = moveTypes.indexOf(curType);
-          possibleChoices.push(curType);
-          questionAnswer = curType;
-
-          if (index > -1) {
-            moveTypes.splice (index,1);
-          }
-
-          var randomChoice = randomNumber(0,moveTypes.length-1);
-          possibleChoices.push(moveTypes[randomChoice].toUpperCase());
-          moveTypes.splice (randomChoice,1);
-          randomChoice = randomNumber(0,moveTypes.length-1);
-          possibleChoices.push(moveTypes[randomChoice].toUpperCase());
-          moveTypes.splice (randomChoice,1);
-          randomChoice = randomNumber(0,moveTypes.length-1);
-          possibleChoices.push(moveTypes[randomChoice].toUpperCase());
-          moveTypes.splice (randomChoice,1);
 
 
-          questionHandler(question);
+          questionHandler(question, pokemonTypes, curType);
 
         });
       }
@@ -176,36 +130,15 @@ var questions = [
           var question = "What type is " + curPokemon + "?"
 
           var types = pokemonTypes;
-          console.log(pokemonTypes);
 
           var curPokemonType = response.types[0].type.name;
 
-          var index = types.indexOf(curPokemonType);
-
-          possibleChoices.push(curPokemonType);
-          questionAnswer = curPokemonType;
-
-          if (index > -1) {
-            types.splice (index,1);
-          }
-
-          var randomChoice = randomNumber(0,types.length);
-          possibleChoices.push(types[randomChoice]);
-          types.splice (randomChoice,1);
-          randomChoice = randomNumber(0,types.length);
-          possibleChoices.push(types[randomChoice]);
-          types.splice (randomChoice,1);
-          randomChoice = randomNumber(0,types.length);
-          possibleChoices.push(types[randomChoice]);
-          types.splice (randomChoice,1);
-
-          questionHandler(question);
+          questionHandler(question,types,curPokemonType.toUpperCase());
 
         });
       }
     }
   ]
-
 
 
 function questionSelect () {
@@ -284,7 +217,7 @@ function gameOver() {
 
   $("#question-spot").empty();
   $("#question-answers").empty();
-  $("#question-spot").text("You have answered " + correctAnswers + " questions correctly <br /> and " + wrongAnswers + " questions incorrectly.");
+  $("#question-spot").text("You have answered " + correctAnswers + " questions correctly and " + wrongAnswers + " questions incorrectly.");
 
   correctAnswers = 0;
   wrongAnswers = 0;
@@ -292,8 +225,55 @@ function gameOver() {
 
 }
 
-function questionHandler (questionText) {
-  console.log("x");
+
+
+function questionHandler (questionText, array, arg1) {
+  
+  var arrayToUse = array;
+  
+
+  var index; //= arrayToUse.indexOf(arg1);
+  var randomChoice;
+  var choiceUsed = true;
+
+  possibleChoices.push(arg1);
+  questionAnswer = arg1;
+  var randomChoice = randomNumber(0,arrayToUse.length);
+
+
+  for (var i = 1; i < 4; i++) {
+    choiceUsed = true;
+    while (choiceUsed) {
+      randomChoice = randomNumber(0,arrayToUse.length);
+      
+
+
+      if (isNaN(arrayToUse[randomChoice])) {
+        index = possibleChoices.indexOf(arrayToUse[randomChoice]);
+        console.log(index);
+
+        if (index == -1) {
+            possibleChoices.push(arrayToUse[randomChoice].toUpperCase());
+            choiceUsed = false;
+          }
+      }
+
+      else {
+
+        index = possibleChoices.indexOf(Math.ceil(arrayToUse[randomChoice] * questionAnswer));
+        console.log(index);
+
+        if (index == -1) {
+          possibleChoices.push(Math.ceil(arrayToUse[randomChoice] * questionAnswer));
+          console.log(Math.ceil(arrayToUse[randomChoice] * questionAnswer))
+          choiceUsed = false;
+
+        }
+      }
+    } 
+  }
+
+
   var answer1 = $("<button>");
   var answer2 = $("<button>");
   var answer3 = $("<button>");
